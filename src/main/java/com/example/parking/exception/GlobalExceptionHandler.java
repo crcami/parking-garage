@@ -3,6 +3,8 @@ package com.example.parking.exception;
 import jakarta.validation.ConstraintViolationException;
 import java.time.Instant;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -13,6 +15,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 /** Maps exceptions to API error responses. */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        GlobalExceptionHandler.class
+    );
 
     /** Handles business rule violations. */
     @ExceptionHandler(BusinessException.class)
@@ -66,8 +72,15 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiErrorResponse> handleGeneric(
         Exception exception
     ) {
+        LOGGER.error("Unexpected server error.", exception);
+
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body(build("Unexpected server error.", List.of()));
+            .body(
+                build(
+                    "Unexpected server error.",
+                    List.of(exception.getClass().getSimpleName())
+                )
+            );
     }
 
     /** Builds a standard error payload. */

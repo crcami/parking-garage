@@ -39,7 +39,7 @@ docker compose up -d
 ### 2. Subir o simulador
 
 ```bash
-docker run -d --network="host" cfontes0estapar/garage-sim:1.0.0
+docker run -d -p 3000:3000 --name garage-sim cfontes0estapar/garage-sim:1.0.0
 ```
 
 ### 3. Iniciar a aplicação

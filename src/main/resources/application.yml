@@ -19,7 +19,13 @@ spring:
     enabled: true
 
 simulator:
-  base-url: http://localhost:3000
+  base-url: http://127.0.0.1:3000
+
+springdoc:
+  api-docs:
+    path: /docs-json
+  swagger-ui:
+    path: /swagger-ui.html
 
 logging:
   level:

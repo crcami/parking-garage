@@ -8,7 +8,7 @@ public class SimulatorGarageSectorResponse {
 
     private String sector;
 
-    @JsonProperty("basePrice")
+    @JsonProperty("base_price")
     private BigDecimal basePrice;
 
     @JsonProperty("max_capacity")
