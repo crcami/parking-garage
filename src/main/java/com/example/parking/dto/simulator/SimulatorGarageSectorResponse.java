@@ -1,18 +1,21 @@
 package com.example.parking.dto.simulator;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.math.BigDecimal;
 
 /** Represents a simulator sector payload. */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class SimulatorGarageSectorResponse {
 
     private String sector;
 
-    @JsonProperty("base_price")
+    @JsonAlias({ "basePrice", "base_price" })
     private BigDecimal basePrice;
 
-    @JsonProperty("max_capacity")
+    @JsonAlias({ "maxCapacity", "max_capacity" })
     private Integer maxCapacity;
+
 
     /** Returns the sector code. */
     public String getSector() {
