@@ -1,0 +1,26 @@
+server:
+  port: 3003
+
+spring:
+  application:
+    name: parking-garage
+  datasource:
+    url: jdbc:mysql://localhost:3306/parking_garage?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    username: parking
+    password: parking
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+  flyway:
+    enabled: true
+
+simulator:
+  base-url: http://localhost:3000
+
+logging:
+  level:
+    com.example.parking: INFO
