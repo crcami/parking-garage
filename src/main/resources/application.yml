@@ -5,9 +5,9 @@ spring:
   application:
     name: parking-garage
   datasource:
-    url: jdbc:mysql://localhost:3306/parking_garage?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-    username: parking
-    password: parking
+    url: ${DB_URL:jdbc:mysql://localhost:3306/parking_garage?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
+    username: ${DB_USERNAME:parking}
+    password: ${DB_PASSWORD:parking}
   jpa:
     hibernate:
       ddl-auto: validate
@@ -19,7 +19,7 @@ spring:
     enabled: true
 
 simulator:
-  base-url: http://127.0.0.1:3000
+  base-url: ${SIMULATOR_URL:http://127.0.0.1:3000}
 
 springdoc:
   api-docs:
