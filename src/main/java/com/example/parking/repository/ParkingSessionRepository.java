@@ -19,6 +19,9 @@ public interface ParkingSessionRepository
         SessionStatus status
     );
 
+    /** Finds all sessions by status (used for cleanup on bootstrap). */
+    java.util.List<ParkingSession> findAllByStatus(SessionStatus status);
+
     /** Sums closed session revenue by exit date and sector. */
     @Query("""
         select coalesce(sum(ps.amountCharged), 0)

@@ -12,6 +12,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 /** Maps exceptions to API error responses. */
 @RestControllerAdvice
@@ -46,6 +47,20 @@ public class GlobalExceptionHandler {
     ) {
         return ResponseEntity.badRequest()
             .body(build("Malformed request body.", List.of()));
+    }
+
+    /** Handles type mismatch on query/path parameters (e.g. wrong date format). */
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ApiErrorResponse> handleTypeMismatch(
+        MethodArgumentTypeMismatchException exception
+    ) {
+        String detail = String.format(
+            "Invalid value for parameter '%s': expected format is yyyy-MM-dd.",
+            exception.getName()
+        );
+
+        return ResponseEntity.badRequest()
+            .body(build("Request parameter type mismatch.", List.of(detail)));
     }
 
     /** Handles bean validation errors on request bodies. */
