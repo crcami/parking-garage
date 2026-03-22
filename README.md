@@ -14,7 +14,7 @@ Backend para o desafio técnico da Estapar — gerenciamento de garagem com pric
 | Spring Boot | 3.4.0 |
 | Spring Data JPA | Persistência |
 | Flyway | Migrations de schema |
-| MySQL | 8.4 (via Docker) |
+| MySQL | 9.6 (via Docker) |
 | H2 | Testes |
 | Bean Validation | Validação de entrada |
 
@@ -22,47 +22,25 @@ Backend para o desafio técnico da Estapar — gerenciamento de garagem com pric
 
 ## Pré-requisitos
 
-- Java 21+
 - Docker e Docker Compose
-- Maven (ou usar o wrapper `./mvnw`)
 
 ---
 
 ## Como executar
 
-### 1. Subir o MySQL
-
 ```bash
 docker compose up -d
 ```
 
-### 2. Subir o simulador
+Esse comando sobe o MySQL, o simulador e a aplicação. A API fica disponível na **porta 3003**.
 
-```bash
-docker run -d -p 3000:3000 --name garage-sim cfontes0estapar/garage-sim:1.0.0
-```
-
-### 3. Iniciar a aplicação
-
-```bash
-./mvnw spring-boot:run
-```
-
-Ou com Maven global:
-
-```bash
-mvn spring-boot:run
-```
-
-A API sobe na **porta 3003**. No startup, ela carrega a topologia da garagem do simulador (`http://localhost:3000/garage`) e persiste no banco.
-
-> Se o simulador usar outra porta, altere `simulator.base-url` em `src/main/resources/application.yml`.
+No startup, ela carrega a topologia da garagem do simulador (`GET http://localhost:3000/garage`) e persiste no banco. O retry automático aguarda o simulador ficar pronto antes de prosseguir.
 
 ---
 
 ## Swagger / OpenAPI
 
-A documentação da API está disponível via Swagger UI. Com a aplicação rodando, acesse:
+Com a aplicação rodando, acesse:
 
 - [http://localhost:3003/swagger-ui.html](http://localhost:3003/swagger-ui.html)
 
@@ -109,7 +87,7 @@ Recebe eventos do simulador. Tipos suportados: `ENTRY`, `PARKED`, `EXIT`.
 
 ### `GET /revenue`
 
-Consulta a receita de um setor em uma data específica.
+Consulta a receita de um setor em uma data específica. Utiliza query parameters em vez de request body, pois RFC 9110 §9.3.1 desencoraja body em requisições GET e muitos clientes HTTP e proxies o ignoram.
 
 | Parâmetro | Tipo | Exemplo |
 |---|---|---|
@@ -134,10 +112,10 @@ Resposta:
 ## Testes
 
 ```bash
-./mvnw test
+mvn test
 ```
 
-Os testes unitários validam as regras de pricing (multiplicador dinâmico, período gratuito e arredondamento de horas).
+Os testes unitários cobrem as regras de pricing (`PricingPolicyServiceTest`), o fluxo completo do webhook (`WebhookServiceTest`), a lógica de receita (`RevenueServiceTest`), a carga inicial da garagem (`GarageBootstrapServiceTest`) e a camada REST de receita (`RevenueControllerTest`). O banco em testes é H2 (in-memory) com schema gerenciado pelo Flyway.
 
 ---
 
@@ -147,7 +125,8 @@ A descrição de cada pacote, o modelo de dados e os diagramas de fluxo estão e
 
 ```text
 parking-garage/
-├── docker-compose.yml   # MySQL 8.4
+├── docker-compose.yml   # MySQL 9.6 + simulador + aplicação
+├── Dockerfile           # Build multi-stage da aplicação
 ├── docs/ARCHITECTURE.md # Arquitetura, fluxos e decisões de design
 ├── pom.xml
 └── src/
@@ -159,10 +138,12 @@ parking-garage/
 
 ## Configuração
 
+Todas as propriedades são configuráveis via variáveis de ambiente no `docker-compose.yml`.
+
 | Propriedade | Padrão | Descrição |
 |---|---|---|
 | `server.port` | `3003` | Porta da API |
-| `simulator.base-url` | `http://localhost:3000` | URL do simulador |
+| `simulator.base-url` | `http://127.0.0.1:3000` | URL do simulador |
 | `spring.datasource.url` | `jdbc:mysql://localhost:3306/parking_garage` | Conexão MySQL |
 | `spring.datasource.username` | `parking` | Usuário do banco |
 | `spring.datasource.password` | `parking` | Senha do banco |

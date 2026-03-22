@@ -10,20 +10,25 @@ import org.springframework.stereotype.Service;
 @Service
 public class PricingPolicyService {
 
-    @Value("${parking.pricing.factor.discount:0.90}")
-    private BigDecimal factorDiscount;
+    private final BigDecimal factorDiscount;
+    private final BigDecimal factorNormal;
+    private final BigDecimal factorPlusStep1;
+    private final BigDecimal factorPlusStep2;
+    private final long toleranceMinutes;
 
-    @Value("${parking.pricing.factor.normal:1.00}")
-    private BigDecimal factorNormal;
-
-    @Value("${parking.pricing.factor.plus-step1:1.10}")
-    private BigDecimal factorPlusStep1;
-
-    @Value("${parking.pricing.factor.plus-step2:1.25}")
-    private BigDecimal factorPlusStep2;
-
-    @Value("${parking.pricing.tolerance-minutes:30}")
-    private long toleranceMinutes;
+    /** Creates the pricing policy service with externalized configuration. */
+    public PricingPolicyService(
+            @Value("${parking.pricing.factor.discount:0.90}") BigDecimal factorDiscount,
+            @Value("${parking.pricing.factor.normal:1.00}") BigDecimal factorNormal,
+            @Value("${parking.pricing.factor.plus-step1:1.10}") BigDecimal factorPlusStep1,
+            @Value("${parking.pricing.factor.plus-step2:1.25}") BigDecimal factorPlusStep2,
+            @Value("${parking.pricing.tolerance-minutes:30}") long toleranceMinutes) {
+        this.factorDiscount = factorDiscount;
+        this.factorNormal = factorNormal;
+        this.factorPlusStep1 = factorPlusStep1;
+        this.factorPlusStep2 = factorPlusStep2;
+        this.toleranceMinutes = toleranceMinutes;
+    }
 
     /** Returns the multiplier for a given occupancy ratio. */
     public BigDecimal resolveMultiplier(

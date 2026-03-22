@@ -159,7 +159,7 @@ No startup (`StartupDataLoader → GarageBootstrapService`), a API consome `GET 
 
 ## Testes
 
-Os testes unitários cobrem exclusivamente `PricingPolicyService`, validando os quatro intervalos do multiplicador, o período gratuito de 30 minutos e o arredondamento de horas. O banco em testes é H2 (in-memory) com schema gerenciado pelo Flyway.
+Os testes unitários cobrem as regras de pricing (`PricingPolicyServiceTest`), o fluxo completo do webhook (`WebhookServiceTest`), a lógica de receita (`RevenueServiceTest`), a carga inicial da garagem (`GarageBootstrapServiceTest`) e a camada REST de receita (`RevenueControllerTest`). O banco em testes é H2 (in-memory) com schema gerenciado pelo Flyway.
 
 ---
 
@@ -172,3 +172,4 @@ Os testes unitários cobrem exclusivamente `PricingPolicyService`, validando os 
 | **Tolerância de coordenada** | `±0.000001` (~11 cm) absorve imprecisão de floating-point sem ambiguidade |
 | **`ddl-auto: validate`** | Flyway é a única fonte de verdade do schema; o Hibernate apenas valida |
 | **Spring RestClient** | API fluente do Spring 6.1, reduz boilerplate frente a `RestTemplate` ou WebClient |
+
