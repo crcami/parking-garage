@@ -32,3 +32,12 @@ springdoc:
 logging:
   level:
     com.example.parking: DEBUG
+
+parking:
+  pricing:
+    factor:
+      discount: ${PARKING_PRICING_FACTOR_DISCOUNT:0.90}
+      normal: ${PARKING_PRICING_FACTOR_NORMAL:1.00}
+      plus-step1: ${PARKING_PRICING_FACTOR_PLUS_STEP1:1.10}
+      plus-step2: ${PARKING_PRICING_FACTOR_PLUS_STEP2:1.25}
+    tolerance-minutes: ${PARKING_PRICING_TOLERANCE_MINUTES:30}
