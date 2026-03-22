@@ -14,7 +14,16 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-pparking"]
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "localhost",
+          "-uparking",
+          "-pparking",
+        ]
       interval: 10s
       timeout: 5s
       retries: 10

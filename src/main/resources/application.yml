@@ -20,6 +20,8 @@ spring:
 
 simulator:
   base-url: ${SIMULATOR_URL:http://127.0.0.1:3000}
+  startup-max-attempts: ${SIMULATOR_STARTUP_MAX_ATTEMPTS:30}
+  startup-delay-millis: ${SIMULATOR_STARTUP_DELAY_MILLIS:2000}
 
 springdoc:
   api-docs:
@@ -29,4 +31,4 @@ springdoc:
 
 logging:
   level:
-    com.example.parking: INFO
+    com.example.parking: DEBUG

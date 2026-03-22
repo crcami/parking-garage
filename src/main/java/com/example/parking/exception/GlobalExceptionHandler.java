@@ -19,93 +19,84 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 public class GlobalExceptionHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(
-        GlobalExceptionHandler.class
-    );
+            GlobalExceptionHandler.class);
 
     /** Handles business rule violations. */
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ApiErrorResponse> handleBusiness(
-        BusinessException exception
-    ) {
+            BusinessException exception) {
+        LOGGER.warn("BusinessException: {}", exception.getMessage());
         return ResponseEntity.badRequest()
-            .body(build(exception.getMessage(), List.of()));
+                .body(build(exception.getMessage(), List.of()));
     }
 
     /** Handles missing resources. */
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiErrorResponse> handleNotFound(
-        ResourceNotFoundException exception
-    ) {
+            ResourceNotFoundException exception) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
-            .body(build(exception.getMessage(), List.of()));
+                .body(build(exception.getMessage(), List.of()));
     }
 
     /** Handles malformed JSON payloads. */
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ApiErrorResponse> handleMalformedBody(
-        HttpMessageNotReadableException exception
-    ) {
+            HttpMessageNotReadableException exception) {
+        LOGGER.warn("Malformed body: {}", exception.getMessage());
         return ResponseEntity.badRequest()
-            .body(build("Malformed request body.", List.of()));
+                .body(build("Malformed request body.", List.of()));
     }
 
     /** Handles type mismatch on query/path parameters (e.g. wrong date format). */
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ApiErrorResponse> handleTypeMismatch(
-        MethodArgumentTypeMismatchException exception
-    ) {
+            MethodArgumentTypeMismatchException exception) {
         String detail = String.format(
-            "Invalid value for parameter '%s': expected format is yyyy-MM-dd.",
-            exception.getName()
-        );
+                "Invalid value for parameter '%s': expected format is yyyy-MM-dd.",
+                exception.getName());
 
         return ResponseEntity.badRequest()
-            .body(build("Request parameter type mismatch.", List.of(detail)));
+                .body(build("Request parameter type mismatch.", List.of(detail)));
     }
 
     /** Handles bean validation errors on request bodies. */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiErrorResponse> handleValidation(
-        MethodArgumentNotValidException exception
-    ) {
+            MethodArgumentNotValidException exception) {
         List<String> details = exception.getBindingResult()
-            .getFieldErrors()
-            .stream()
-            .map(FieldError::getDefaultMessage)
-            .toList();
+                .getFieldErrors()
+                .stream()
+                .map(FieldError::getDefaultMessage)
+                .toList();
 
         return ResponseEntity.badRequest()
-            .body(build("Request validation failed.", details));
+                .body(build("Request validation failed.", details));
     }
 
     /** Handles bean validation errors on query params. */
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ApiErrorResponse> handleConstraint(
-        ConstraintViolationException exception
-    ) {
+            ConstraintViolationException exception) {
         List<String> details = exception.getConstraintViolations()
-            .stream()
-            .map(violation -> violation.getMessage())
-            .toList();
+                .stream()
+                .map(violation -> violation.getMessage())
+                .toList();
 
         return ResponseEntity.badRequest()
-            .body(build("Request validation failed.", details));
+                .body(build("Request validation failed.", details));
     }
 
     /** Handles unexpected errors. */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiErrorResponse> handleGeneric(
-        Exception exception
-    ) {
+            Exception exception) {
         LOGGER.error("Unexpected server error.", exception);
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body(
-                build(
-                    "Unexpected server error.",
-                    List.of(exception.getClass().getSimpleName())
-                )
-            );
+                .body(
+                        build(
+                                "Unexpected server error.",
+                                List.of(exception.getClass().getSimpleName())));
     }
 
     /** Builds a standard error payload. */

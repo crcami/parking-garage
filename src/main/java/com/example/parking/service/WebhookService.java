@@ -13,11 +13,17 @@ import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 /** Processes webhook events from the simulator. */
 @Service
 public class WebhookService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        WebhookService.class
+    );
 
     private static final double COORDINATE_TOLERANCE = 0.000001d;
 
@@ -40,6 +46,12 @@ public class WebhookService {
     @Transactional
     public void handle(WebhookEventRequest request) {
         WebhookEventType eventType = request.getEventType();
+
+        LOGGER.info(
+            "Processing webhook event {} for plate {}.",
+            eventType,
+            request.getLicensePlate()
+        );
 
         switch (eventType) {
             case ENTRY -> handleEntry(request);
@@ -88,6 +100,13 @@ public class WebhookService {
         session.setStatus(SessionStatus.OPEN);
 
         parkingSessionRepository.save(session);
+
+        LOGGER.info(
+            "Vehicle {} entered sector {} on spot {}.",
+            request.getLicensePlate(),
+            spot.getSector().getCode(),
+            spot.getExternalSpotId()
+        );
     }
 
     /** Handles a PARKED event. */
@@ -112,6 +131,11 @@ public class WebhookService {
             currentSpot != null &&
             currentSpot.getId().equals(actualSpot.getId())
         ) {
+            LOGGER.info(
+                "Vehicle {} is already parked on spot {}.",
+                request.getLicensePlate(),
+                actualSpot.getExternalSpotId()
+            );
             return;
         }
 
@@ -133,6 +157,13 @@ public class WebhookService {
         session.setSpot(actualSpot);
         session.setSectorCode(actualSpot.getSector().getCode());
         parkingSessionRepository.save(session);
+
+        LOGGER.info(
+            "Vehicle {} parked on sector {} spot {}.",
+            request.getLicensePlate(),
+            actualSpot.getSector().getCode(),
+            actualSpot.getExternalSpotId()
+        );
     }
 
     /** Handles an EXIT event. */
@@ -171,6 +202,12 @@ public class WebhookService {
         }
 
         parkingSessionRepository.save(session);
+
+        LOGGER.info(
+            "Vehicle {} exited with amount {}.",
+            request.getLicensePlate(),
+            amount
+        );
     }
 
     /** Resolves the first free spot in deterministic order. */

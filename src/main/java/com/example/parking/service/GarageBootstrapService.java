@@ -11,7 +11,6 @@ import com.example.parking.integration.SimulatorClient;
 import com.example.parking.repository.GarageSectorRepository;
 import com.example.parking.repository.ParkingSessionRepository;
 import com.example.parking.repository.ParkingSpotRepository;
-import jakarta.transaction.Transactional;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +43,7 @@ public class GarageBootstrapService {
     }
 
     /** Loads the simulator garage configuration into the database. */
-    @Transactional
+    
     public void loadGarageConfiguration() {
         cancelOpenSessions();
 

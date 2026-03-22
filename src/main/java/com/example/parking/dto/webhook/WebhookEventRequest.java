@@ -1,6 +1,9 @@
 package com.example.parking.dto.webhook;
 
+import com.example.parking.config.FlexibleInstantDeserializer;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.time.Instant;
@@ -13,9 +16,11 @@ public class WebhookEventRequest {
     private String licensePlate;
 
     @JsonProperty("entry_time")
+    @JsonDeserialize(using = FlexibleInstantDeserializer.class)
     private Instant entryTime;
 
     @JsonProperty("exit_time")
+    @JsonDeserialize(using = FlexibleInstantDeserializer.class)
     private Instant exitTime;
 
     private Double lat;
