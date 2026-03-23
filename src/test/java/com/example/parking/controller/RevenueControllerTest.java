@@ -14,7 +14,6 @@ import java.time.LocalDate;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -22,60 +21,49 @@ import org.springframework.test.web.servlet.MockMvc;
 @WebMvcTest(RevenueController.class)
 class RevenueControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+        @Autowired
+        private MockMvc mockMvc;
 
-    @MockitoBean
-    private RevenueService revenueService;
+        @MockitoBean
+        private RevenueService revenueService;
 
-    /** Verifies that an invalid date format returns HTTP 400. */
-    @Test
-    void getRevenue_shouldReturn400ForInvalidDateFormat() throws Exception {
-        mockMvc.perform(get("/revenue")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""
-                        {"date": "21/03/2026", "sector": "A"}
-                        """))
-                .andExpect(status().isBadRequest());
-    }
+        /** Verifies that an invalid date format returns HTTP 400. */
+        @Test
+        void getRevenue_shouldReturn400ForInvalidDateFormat() throws Exception {
+                mockMvc.perform(get("/revenue")
+                                .param("date", "21/03/2026")
+                                .param("sector", "A"))
+                                .andExpect(status().isBadRequest())
+                                .andExpect(jsonPath("$.message").value("Request parameter type mismatch."))
+                                .andExpect(jsonPath("$.details[0]").value(
+                                                "Invalid value for parameter 'date': expected format is yyyy-MM-dd."));
+        }
 
-    /** Verifies that a valid request returns HTTP 200 with the revenue payload. */
-    @Test
-    void getRevenue_shouldReturn200ForValidRequest() throws Exception {
-        RevenueResponse response = new RevenueResponse(
-                new BigDecimal("81.00"),
-                "BRL",
-                Instant.parse("2026-03-21T13:00:00Z"));
+        /** Verifies that a valid request returns HTTP 200 with the revenue payload. */
+        @Test
+        void getRevenue_shouldReturn200ForValidRequest() throws Exception {
+                RevenueResponse response = new RevenueResponse(
+                                new BigDecimal("81.00"),
+                                "BRL",
+                                Instant.parse("2026-03-21T13:00:00Z"));
 
-        when(revenueService.getRevenue(eq(LocalDate.of(2026, 3, 21)), eq("A")))
-                .thenReturn(response);
+                when(revenueService.getRevenue(eq(LocalDate.of(2026, 3, 21)), eq("A")))
+                                .thenReturn(response);
 
-        mockMvc.perform(get("/revenue")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""
-                        {"date": "2026-03-21", "sector": "A"}
-                        """))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.amount").value(81.00))
-                .andExpect(jsonPath("$.currency").value("BRL"));
-    }
+                mockMvc.perform(get("/revenue")
+                                .param("date", "2026-03-21")
+                                .param("sector", "A"))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.amount").value(81.00))
+                                .andExpect(jsonPath("$.currency").value("BRL"));
+        }
 
-    /** Verifies that a missing sector returns HTTP 400. */
-    @Test
-    void getRevenue_shouldReturn400WhenSectorIsBlank() throws Exception {
-        mockMvc.perform(get("/revenue")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""
-                        {"date": "2026-03-21", "sector": ""}
-                        """))
-                .andExpect(status().isBadRequest());
-    }
-
-    /** Verifies that a missing body returns HTTP 400. */
-    @Test
-    void getRevenue_shouldReturn400WhenBodyIsMissing() throws Exception {
-        mockMvc.perform(get("/revenue")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-    }
+        /** Verifies that a missing sector returns HTTP 400. */
+        @Test
+        void getRevenue_shouldReturn400WhenSectorIsBlank() throws Exception {
+                mockMvc.perform(get("/revenue")
+                                .param("date", "2026-03-21")
+                                .param("sector", ""))
+                                .andExpect(status().isBadRequest());
+        }
 }

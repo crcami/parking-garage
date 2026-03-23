@@ -22,19 +22,37 @@ Backend para o desafio técnico da Estapar — gerenciamento de garagem com pric
 
 ## Pré-requisitos
 
+- Java 21+
+- Maven
 - Docker e Docker Compose
 
 ---
 
 ## Como executar
 
+### 1. Subir o MySQL
 ```bash
 docker compose up -d
 ```
 
-Esse comando sobe o MySQL, o simulador e a aplicação. A API fica disponível na **porta 3003**.
+### 2. Subir o simulador
 
-No startup, ela carrega a topologia da garagem do simulador (`GET http://localhost:3000/garage`) e persiste no banco. O retry automático aguarda o simulador ficar pronto antes de prosseguir.
+**Linux / macOS:**
+```bash
+docker run -d --name garage-sim --network="host" cfontes0estapar/garage-sim:1.0.0
+```
+
+**Windows (Docker Desktop):**
+```bash
+docker run -d --name garage-sim -p 3000:3000 --add-host localhost:host-gateway cfontes0estapar/garage-sim:1.0.0
+```
+
+### 3. Iniciar a aplicação
+```bash
+mvn spring-boot:run
+```
+
+A API sobe na **porta 3003**. No startup, ela carrega a topologia da garagem do simulador (`GET http://localhost:3000/garage`) e persiste no banco. O retry automático aguarda o simulador ficar pronto antes de prosseguir.
 
 ---
 
@@ -87,17 +105,15 @@ Recebe eventos do simulador. Tipos suportados: `ENTRY`, `PARKED`, `EXIT`.
 
 ### `GET /revenue`
 
-Consulta a receita de um setor em uma data específica. Utiliza query parameters em vez de request body, pois RFC 9110 §9.3.1 desencoraja body em requisições GET e muitos clientes HTTP e proxies o ignoram.
+Consulta a receita de um setor em uma data específica.
 
 | Parâmetro | Tipo | Exemplo |
 |---|---|---|
 | `date` | ISO date | `2025-01-01` |
 | `sector` | string | `A` |
-
 ```bash
 curl "http://localhost:3003/revenue?date=2025-01-01&sector=A"
 ```
-
 Resposta:
 ```json
 {
@@ -110,7 +126,6 @@ Resposta:
 ---
 
 ## Testes
-
 ```bash
 mvn test
 ```
@@ -122,11 +137,9 @@ Os testes unitários cobrem as regras de pricing (`PricingPolicyServiceTest`), o
 ## Estrutura do projeto
 
 A descrição de cada pacote, o modelo de dados e os diagramas de fluxo estão em [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
-
 ```text
 parking-garage/
-├── docker-compose.yml   # MySQL 9.6 + simulador + aplicação
-├── Dockerfile           # Build multi-stage da aplicação
+├── docker-compose.yml   # MySQL 9.6
 ├── docs/ARCHITECTURE.md # Arquitetura, fluxos e decisões de design
 ├── pom.xml
 └── src/
@@ -137,8 +150,6 @@ parking-garage/
 ---
 
 ## Configuração
-
-Todas as propriedades são configuráveis via variáveis de ambiente no `docker-compose.yml`.
 
 | Propriedade | Padrão | Descrição |
 |---|---|---|
